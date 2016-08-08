@@ -5,9 +5,9 @@
  * 异步加载图片资源
  * */
 class AsyncRes {
-    public static getRes(item:eui.Image,url:string) {
-        RES.getResAsync(url,function() {
-            item.source = RES.getRes(url);
+    public static getRes(item: eui.Image,url: string) {
+        RES.getResAsync(url,function(pTexture,pUrl) {
+            item.source = pTexture;
         },this);
     }
 }
@@ -82,12 +82,6 @@ class DataStore {
         var value = egret.localStorage.getItem(key);
         return (value == "" || value == undefined || value == null) ? defaultValue : value;
     }
-    //读取链接中的数据
-    public static readLinkData(name: string) {
-        var reg = new RegExp("(^|&)" + name + "=([^&]*)(&|$)","i");
-        var r = window.location.search.substr(1).match(reg);
-        if(r != null) return (r[2]); return null;
-    }
 }
 
 //字典结构 一个key 一个数据
@@ -107,7 +101,7 @@ class Dictionary {
     }
     public showAll (){
         for(var idx in this.dataStore){
-            Log.debug(idx + "->" + this.dataStore[idx]);
+            console.log(idx + "->" + this.dataStore[idx]);
         }
     }
     public count ():number{
