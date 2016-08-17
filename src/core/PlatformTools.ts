@@ -5,10 +5,30 @@
  * 异步加载图片资源
  * */
 class AsyncRes {
-    public static getRes(item: eui.Image,url: string) {
-        RES.getResAsync(url,function(pTexture,pUrl) {
-            item.source = pTexture;
+    public static getRes(item,url) {
+        RES.getResAsync(url,function() {
+            item.source = RES.getRes(url);
         },this);
+    }
+}
+
+/**
+ * 添加按钮监听
+ * */
+class TouchTap {
+    public static add (item,callback,target){
+        item.addEventListener(egret.TouchEvent.TOUCH_TAP,callback,target);
+    }
+    public static remove (item,callback,target){
+        item.removeEventListener(egret.TouchEvent.TOUCH_TAP,callback,target);
+    }
+}
+/**
+ * 平台检测
+ * */
+class PlatUntils {
+    public static isNative() {
+        return egret.Capabilities.runtimeType == egret.RuntimeType.NATIVE;
     }
 }
 
@@ -40,8 +60,9 @@ class Log {
  * 界面控制
  * */
 class StageManager {
+    public static stage : eui.UILayer;
     //添加显示节点
-    public static popDisplayObjectContainer(db: any) {
+    public static popDisplayObjectContainer(db: eui.Component) {
         var stage = egret.MainContext.instance.stage;
         stage.addChild(db);
     }
@@ -72,6 +93,13 @@ class StageManager {
 
 //存档
 class DataStore {
+    //读取链接数据
+    public static getLinkData(name: string) {
+        if(PlatUntils.isNative()) return;
+        var reg = new RegExp("(^|&)" + name + "=([^&]*)(&|$)","i");
+        var r = window.location.search.substr(1).match(reg);
+        if(r != null) return (r[2]); return null;
+    }
     //写入数据
     public static writeLocalData(key: string,value: any) {
         egret.localStorage.setItem(key,value);
@@ -83,60 +111,4 @@ class DataStore {
         return (value == "" || value == undefined || value == null) ? defaultValue : value;
     }
 }
-
-//字典结构 一个key 一个数据
-class Dictionary {
-    private dataStore : Array<any>;
-    public constructor(){
-        this.dataStore = new Array();
-    }
-    public add (key,value) {
-        this.dataStore[key] = value;
-    }
-    public find (key){
-        return this.dataStore[key];        
-    }
-    public remove (key){
-        delete this.dataStore[key];
-    }
-    public showAll (){
-        for(var idx in this.dataStore){
-            console.log(idx + "->" + this.dataStore[idx]);
-        }
-    }
-    public count ():number{
-        var num = 0;
-        for(var key in Object.keys(this.dataStore)){
-            ++num;
-        }
-        return num;
-    }
-    public clear (){
-        for(var idx in this.dataStore){
-            delete this.dataStore[idx];
-        }
-    }
-}
-
-//数据的克隆
-class DataClone {
-    public static clone (data){
-        var cloeData = data instanceof Array ? [] : {};
-        for(var idx in data) {
-            if(typeof data[idx] == "object") {
-                cloeData[idx] = DataClone.clone(data[idx]);
-            } else {
-                cloeData[idx] = data[idx];
-            }
-        }
-        return cloeData;
-    }
-}
-
-
-
-
-
-
-
 
